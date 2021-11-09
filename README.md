@@ -1,7 +1,7 @@
 # sensor.ssh
 Generic SSH based sensor for Home Assistant
-  
-[![Version](https://img.shields.io/badge/version-0.1.5-green.svg?style=for-the-badge)](#) [![mantained](https://img.shields.io/maintenance/yes/2021.svg?style=for-the-badge)](#) [![forum](https://img.shields.io/badge/forum-visit-orange.svg?style=for-the-badge)](https://community.home-assistant.io/t/unifi-security-gateway/71505)   
+
+[![Version](https://img.shields.io/badge/version-0.1.5-green.svg?style=for-the-badge)](#) [![mantained](https://img.shields.io/maintenance/yes/2021.svg?style=for-the-badge)](#) [![forum](https://img.shields.io/badge/forum-visit-orange.svg?style=for-the-badge)](https://community.home-assistant.io/t/unifi-security-gateway/71505)
 
 Login to a remote server via ssh, execute a command and retrieve the result as sensor value
 
@@ -45,7 +45,7 @@ sensor:
 **username**
 
   (string)(Required) A user on the remote server
-  
+
 **password**
 
 (string)(Required) The password for the account
@@ -58,7 +58,11 @@ sensor:
 **command**
 
   (string)(Required) The command to execute on the remote server
-  
+
+**unit_of_measurement**
+
+  (string)(Optional) Defines the units of measurement of the sensor
+
 ### Considerations
 
 The sensor utilises the pexpect library https://pexpect.readthedocs.io/en/stable/ which mimics a user logging into the remote server via ssh. This results in the output being formatted as output from a tty terminal. Check out the pexecpt documentation for the oddities this causes.
