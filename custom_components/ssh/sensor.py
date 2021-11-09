@@ -37,7 +37,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_USERNAME): cv.string,
     vol.Optional(CONF_PORT, default=DEFAULT_SSH_PORT): cv.port,
     vol.Required(CONF_COMMAND): cv.string,
-    vol.Required(CONF_UNIT_OF_MEASUREMENT): cv.string,
+    vol.Optional(CONF_UNIT_OF_MEASUREMENT): cv.string,
     vol.Optional(CONF_VALUE_TEMPLATE): cv.template,
 })
 
@@ -62,6 +62,7 @@ class SSHSensor(Entity):
         self._value_template = config.get(CONF_VALUE_TEMPLATE)
         self._unit_of_measurement = config.get(CONF_UNIT_OF_MEASUREMENT)
         self._ssh = None
+        self._state = None
         self._connected = False
         self._connect()
         self._attributes = {}
@@ -92,8 +93,10 @@ class SSHSensor(Entity):
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement of this entity, if any."""
-        return self._unit_of_measurement
-    
+        if self._unit_of_measurement is None:
+            return None
+        return str(self._unit_of_measurement)
+
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     def update(self):
         from pexpect import pxssh, exceptions
@@ -136,7 +139,9 @@ class SSHSensor(Entity):
             self._ssh.login(self._host, self._username,
                            password=self._password, port=self._port)
             self._connected = True
-        except exceptions.EOF:
+#       except exceptions.EOF:
+        except pxssh.ExceptionPxssh as err:
+            _LOGGER.error("%s", err)
             _LOGGER.error("Connection refused. SSH enabled?")
             self._disconnect()
 
