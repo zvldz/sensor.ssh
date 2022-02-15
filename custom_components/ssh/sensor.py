@@ -9,48 +9,55 @@ import logging
 import voluptuous as vol
 from datetime import timedelta
 import json
-import asyncio
 
 from homeassistant.helpers.entity import Entity
 import homeassistant.helpers.config_validation as cv
 from homeassistant.util import Throttle
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
-    CONF_NAME, CONF_HOST, CONF_USERNAME, CONF_PASSWORD,
-    CONF_VALUE_TEMPLATE, CONF_COMMAND, CONF_PORT,
-    STATE_UNKNOWN, CONF_UNIT_OF_MEASUREMENT)
+    CONF_NAME,
+    CONF_HOST,
+    CONF_USERNAME,
+    CONF_PASSWORD,
+    CONF_VALUE_TEMPLATE,
+    CONF_COMMAND,
+    CONF_PORT,
+    STATE_UNKNOWN,
+    CONF_UNIT_OF_MEASUREMENT,
+)
 
-__version__ = '0.1.3'
+__version__ = "0.1.6"
 
 _LOGGER = logging.getLogger(__name__)
-DOMAIN = 'sensor'
+DOMAIN = "sensor"
 
-DEFAULT_NAME = 'SSH'
+DEFAULT_NAME = "SSH"
 DEFAULT_SSH_PORT = 22
 
 MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=30)
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    vol.Required(CONF_HOST): cv.string,
-    vol.Required(CONF_PASSWORD): cv.string,
-    vol.Required(CONF_USERNAME): cv.string,
-    vol.Optional(CONF_PORT, default=DEFAULT_SSH_PORT): cv.port,
-    vol.Required(CONF_COMMAND): cv.string,
-    vol.Optional(CONF_UNIT_OF_MEASUREMENT): cv.string,
-    vol.Optional(CONF_VALUE_TEMPLATE): cv.template,
-})
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+    {
+        vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        vol.Required(CONF_HOST): cv.string,
+        vol.Required(CONF_PASSWORD): cv.string,
+        vol.Required(CONF_USERNAME): cv.string,
+        vol.Optional(CONF_PORT, default=DEFAULT_SSH_PORT): cv.port,
+        vol.Required(CONF_COMMAND): cv.string,
+        vol.Optional(CONF_UNIT_OF_MEASUREMENT): cv.string,
+        vol.Optional(CONF_VALUE_TEMPLATE): cv.template,
+    }
+)
 
-@asyncio.coroutine
-def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
+
+def setup_platform(hass, config, add_devices, discovery_info=None):
 
     dev = []
     dev.append(SSHSensor(hass, config))
-    async_add_devices(dev, True)
+    add_devices(dev, True)
 
 
 class SSHSensor(Entity):
-
     def __init__(self, hass, config):
         """Initialize the scanner."""
         self._name = config.get(CONF_NAME)
@@ -78,7 +85,7 @@ class SSHSensor(Entity):
     @property
     def icon(self):
         """Icon to use in the frontend, if any."""
-        return 'mdi:folder-key-network'
+        return "mdi:folder-key-network"
 
     @property
     def state(self):
@@ -115,7 +122,8 @@ class SSHSensor(Entity):
 
             if self._value_template is not None:
                 self._state = self._value_template.render_with_possible_json_value(
-                    value, STATE_UNKNOWN)
+                    value, STATE_UNKNOWN
+                )
             else:
                 self._state = value
 
@@ -136,10 +144,10 @@ class SSHSensor(Entity):
 
         self._ssh = pxssh.pxssh()
         try:
-            self._ssh.login(self._host, self._username,
-                           password=self._password, port=self._port)
+            self._ssh.login(
+                self._host, self._username, password=self._password, port=self._port
+            )
             self._connected = True
-#       except exceptions.EOF:
         except pxssh.ExceptionPxssh as err:
             _LOGGER.error("%s", err)
             _LOGGER.error("Connection refused. SSH enabled?")
@@ -156,4 +164,3 @@ class SSHSensor(Entity):
             self._ssh = None
 
         self._connected = False
-
