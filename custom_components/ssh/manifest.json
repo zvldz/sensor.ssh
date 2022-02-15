@@ -5,5 +5,5 @@
         "requirements": ["pexpect==4.6.0"],
         "dependencies": [],
         "codeowners": ["@jchasey", "@zvldz"],
-        "version":"0.1.6"
+        "version":"0.1.7"
 }
